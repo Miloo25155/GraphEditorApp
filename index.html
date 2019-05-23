@@ -60,6 +60,7 @@
 					//let x = e.clientX;
 					let y = e.clientY;
 					if(this.currentPointElement != null){
+						this.points[this.currentSelectedPointIndex].y = y;
 						this.currentPointElement.style.top = (y -15) + "px";	
 					}
 				}.bind(this))

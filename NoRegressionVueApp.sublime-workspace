@@ -4,6 +4,22 @@
 		"selected_items":
 		[
 			[
+				"cur",
+				"currentPointElement"
+			],
+			[
+				"mou",
+				"mouseY"
+			],
+			[
+				"calc",
+				"calculateSinglePointPosition"
+			],
+			[
+				"y",
+				"yPosition"
+			],
+			[
 				"curr",
 				"currentSelectedPointIndex"
 			],
@@ -39,7 +55,7 @@
 			"file": "index.html",
 			"settings":
 			{
-				"buffer_size": 3034,
+				"buffer_size": 2366,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -48,7 +64,7 @@
 			"file": "index.css",
 			"settings":
 			{
-				"buffer_size": 275,
+				"buffer_size": 267,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -95,7 +111,7 @@
 	],
 	"find":
 	{
-		"height": 0.0
+		"height": 39.0
 	},
 	"find_in_files":
 	{
@@ -135,15 +151,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3034,
+						"buffer_size": 2366,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								489,
-								489
+								2112,
+								2112
 							]
 						],
 						"settings":
@@ -152,7 +168,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 644.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -164,15 +180,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 275,
+						"buffer_size": 267,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								275,
-								275
+								206,
+								206
 							]
 						],
 						"settings":
@@ -192,7 +208,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 0.0
+		"height": 26.0
 	},
 	"input":
 	{
@@ -229,7 +245,7 @@
 	"project": "NoRegressionVueApp.sublime-project",
 	"replace":
 	{
-		"height": 0.0
+		"height": 48.0
 	},
 	"save_all_on_build": true,
 	"select_file":
