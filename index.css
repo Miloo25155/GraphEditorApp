@@ -13,7 +13,7 @@
 	height:0px;
 	display:inline-block;
 	position:relative;
-	transition: top 1s, left 1s;
+	transition: left 1s;
 }
 
 .pointInContainer.selected span{

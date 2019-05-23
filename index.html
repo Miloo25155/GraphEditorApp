@@ -8,8 +8,8 @@
  	<link rel="stylesheet" href="index.css">
 </head>
 <body>
-	<div id="appContainer" v-on:click="handleClick($event)">
-		<div v-for="(point, index) in points" v-on:mousedown="followMouse(index)"
+	<div id="appContainer" v-on:mouseup="deselectPoint">
+		<div v-for="(point, index) in points" v-on:mousedown="selectPoint(index)"
 			 v-bind:id="'point_' + index" v-bind:class="{ 'selected': currentSelectedPointIndex === index }" class="pointInContainer">
 			<span class="fa fa-info-circle"></span>
 		</div>
@@ -22,11 +22,18 @@
 		el: "#appContainer",
 		data: {
 			points:[
-				{x: 15, y: 50},
-				{x: 50, y: 80}
+				{x: 5, y: 300},
+				{x: 105, y: 300},
+				{x: 205, y: 300},
+				{x: 305, y: 300},
+				{x: 405, y: 300},
+				{x: 505, y: 300},
+				{x: 605, y: 300},
+				{x: 705, y: 300}
 			],
 			currentSelectedPointIndex: -1,
-			pointSize: 10
+			pointSize: 10,
+			currentPointElement: null
 		},
 		mounted: function(){
 			this.calculatePointPosition();
@@ -45,69 +52,25 @@
 				point.style.left = this.points[index].x + "px";
 				point.style.top = this.points[index].y + "px";
 			},
-			addPoint: function(x, y){
-			    let newPoint = { x: x, y: y };
-
-				this.points.push(newPoint);
-
-				Vue.nextTick(function(){
-					this.calculateSinglePointPosition(this.points.length-1);
-				}.bind(this))
-			},
-			handleClick: function(event){
-				debugger;
-				var xScrollPos = document.documentElement.scrollLeft;
-			    var yScrollPos = document.documentElement.scrollTop;
-
-				let xPosition = xScrollPos + event.clientX - 15;
-			    let yPosition = yScrollPos + event.clientY - 15;
-
-			    let existingPoint = this.points.filter(function(x){
-			    	return x.x >= xPosition - this.pointSize && x.x <= xPosition + this.pointSize
-			    		&& x.y >= yPosition - this.pointSize && x.y <= yPosition + this.pointSize;
-			    }.bind(this))
-
-			    //if there is a point at the same position
-			    if(existingPoint != null && existingPoint.length > 0){
-			    	let indexOfExistingPoint = this.points.indexOf(existingPoint[0]);
-			    	//if we already have a point selected we select the new one instead
-			    	if(this.currentSelectedPointIndex != indexOfExistingPoint) {
-			    		this.currentSelectedPointIndex = indexOfExistingPoint;
-			    	//if we click on the selected point we deselect it
-			    	} else{
-			    		this.currentSelectedPointIndex = -1;
-			    	}
-			    //if no point at mouse position, and a point is selected, we move it to current position
-			    } else if(this.currentSelectedPointIndex != -1){
-		    		this.points[this.currentSelectedPointIndex] = { x: xPosition, y: yPosition };
-		    		this.calculateSinglePointPosition(this.currentSelectedPointIndex);
-		    	//else if no point selected and no point at current position, we add  a new one
-			    } else{
-					this.addPoint(xPosition, yPosition);
-			    }
-			},
-
-			dragElement: function(event){
-				if(this.currentSelectedPointIndex === -1){
-					return;
-				}
-
-				var xScrollPos = document.documentElement.scrollLeft;
-			    var yScrollPos = document.documentElement.scrollTop;
-
-				let xPosition = xScrollPos + event.clientX - 15;
-			    let yPosition = yScrollPos + event.clientY - 15;
-
-			    let newPosition = { x: xPosition, y: yPosition };
-
-			    this.$set(this.points, this.currentSelectedPointIndex, newPosition);
-			    this.calculateSinglePointPosition(this.currentSelectedPointIndex);
-			},
-
-			followMouse: function(index){
-				debugger;
+			selectPoint: function(index){
 				this.currentSelectedPointIndex = index;
-			}
+
+				this.currentPointElement = document.getElementById("point_"+index);
+				document.addEventListener("mousemove", function(e){
+					//let x = e.clientX;
+					let y = e.clientY;
+					if(this.currentPointElement != null){
+						this.currentPointElement.style.top = (y -15) + "px";	
+					}
+				}.bind(this))
+
+			},
+			deselectPoint: function(){
+				//delete listener
+				this.currentPointElement = null;
+				document.removeEventListener("mousemove", null);
+				this.currentSelectedPointIndex = -1;
+			},
 		}
 	})
 </script>
