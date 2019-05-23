@@ -9,7 +9,8 @@
 </head>
 <body>
 	<div id="appContainer" v-on:click="handleClick($event)">
-		<div v-for="(point, index) in points" v-bind:id="'point_' + index" v-bind:class="{ 'selected': currentSelectedPointIndex === index }" class="pointInContainer">
+		<div v-for="(point, index) in points" v-on:mousedown="followMouse(index)"
+			 v-bind:id="'point_' + index" v-bind:class="{ 'selected': currentSelectedPointIndex === index }" class="pointInContainer">
 			<span class="fa fa-info-circle"></span>
 		</div>
 	</div>
@@ -39,16 +40,22 @@
 					point.style.top = this.points[i].y + "px";
 				}
 			},
+			calculateSinglePointPosition: function(index){
+				let point = document.getElementById("point_"+index);
+				point.style.left = this.points[index].x + "px";
+				point.style.top = this.points[index].y + "px";
+			},
 			addPoint: function(x, y){
 			    let newPoint = { x: x, y: y };
 
 				this.points.push(newPoint);
 
 				Vue.nextTick(function(){
-					this.calculatePointPosition();
+					this.calculateSinglePointPosition(this.points.length-1);
 				}.bind(this))
 			},
 			handleClick: function(event){
+				debugger;
 				var xScrollPos = document.documentElement.scrollLeft;
 			    var yScrollPos = document.documentElement.scrollTop;
 
@@ -73,11 +80,33 @@
 			    //if no point at mouse position, and a point is selected, we move it to current position
 			    } else if(this.currentSelectedPointIndex != -1){
 		    		this.points[this.currentSelectedPointIndex] = { x: xPosition, y: yPosition };
-		    		this.calculatePointPosition();
+		    		this.calculateSinglePointPosition(this.currentSelectedPointIndex);
 		    	//else if no point selected and no point at current position, we add  a new one
 			    } else{
 					this.addPoint(xPosition, yPosition);
 			    }
+			},
+
+			dragElement: function(event){
+				if(this.currentSelectedPointIndex === -1){
+					return;
+				}
+
+				var xScrollPos = document.documentElement.scrollLeft;
+			    var yScrollPos = document.documentElement.scrollTop;
+
+				let xPosition = xScrollPos + event.clientX - 15;
+			    let yPosition = yScrollPos + event.clientY - 15;
+
+			    let newPosition = { x: xPosition, y: yPosition };
+
+			    this.$set(this.points, this.currentSelectedPointIndex, newPosition);
+			    this.calculateSinglePointPosition(this.currentSelectedPointIndex);
+			},
+
+			followMouse: function(index){
+				debugger;
+				this.currentSelectedPointIndex = index;
 			}
 		}
 	})
