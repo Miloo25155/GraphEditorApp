@@ -1,7 +1,6 @@
 <!--
 TODO:
 
-* Dynamic month selection for developement purposes
 * Year separation with stroked lines every 12 points
 * Preset function (linear pos/neg, exp, ln, sqr)
 
@@ -28,7 +27,9 @@ TODO:
 			</div>
 			<svg style="width: 100%;height:100%;">
 				<line v-for="(line, index) in lines" stroke="#00C4FF"
-				  	v-bind:x1="line.x1" v-bind:y1="line.y1" v-bind:x2="line.x2" v-bind:y2="line.y2"/>
+					  v-bind:x1="line.x1" v-bind:y1="line.y1" v-bind:x2="line.x2" v-bind:y2="line.y2"/>
+				<line v-for="(year, index) in yearLines" stroke="grey" stroke-dasharray="10,10" stroke-width="1"
+				      v-bind:x1="year.x1" v-bind:y1="year.y1" v-bind:x2="year.x2" v-bind:y2="year.y2"/>
 			</svg>
 		</div>
 	</div>
@@ -48,22 +49,30 @@ TODO:
 
 			lines: [],
 
-			months:12,
+			months:36,
+			yearMonths:12,
+			yearLines:[],
 
-			mouseSize: 10
+			mouseSize: 10,
+
+			gridPrecision: 0.01
 		},
 		mounted: function(){
-			this.generatePoints();
-			Vue.nextTick(function(){
-				this.calculatePointPosition();
-				this.generateLines();
-			}.bind(this))
+			this.init();
 
 			document.addEventListener("mouseup", function(){
 				mainVue.deselectPoint();
 			})
 		},
 		methods:{
+			init: function(){
+				this.generatePoints();
+				Vue.nextTick(function(){
+					this.calculatePointPosition();
+					this.generateLines();
+					this.generateYearLines();
+				}.bind(this))
+			},
 			generatePoints: function(){
 				this.container = document.getElementById("graphContainer");
 
@@ -75,9 +84,11 @@ TODO:
 				for (let i = 0; i < this.months+1; i++) {
 					let point = { x: i*pointsGap - this.pointSize/2, y: this.container.offsetHeight - this.pointSize}
 					this.points.push(point);
+
 				}
 			},
 			generateLines: function(){
+				this.lines = [];
 				for (let i = 0; i < this.points.length-1; i++) {
 					let line = {
 						x1: this.points[i].x + this.pointSize/2,
@@ -88,6 +99,56 @@ TODO:
 					this.lines.push(line);
 				}
 			},
+			generateYearLines: function(){
+				let nbYears = (this.months - this.months%this.yearMonths) / this.yearMonths;
+
+				for (let i = 1; i < nbYears; i++) {
+					let year = {
+						x1:this.points[i*this.yearMonths].x + this.pointSize/2,
+						y1:0,
+						x2:this.points[i*this.yearMonths].x + this.pointSize/2,
+						y2: this.container.offsetHeight
+					}
+					this.yearLines.push(year);
+				}
+			},
+
+            fromCoordToPercentage: function(value){
+                let zero = this.container.offsetHeight - this.pointSize;
+
+				let percentage = ((zero - value) / zero) * 100
+                  
+                return percentage;
+            },
+			fromPercentageToCoord: function(percentage){
+                let zero = this.container.offsetHeight - this.pointSize;
+
+				let value = zero - ((percentage / 100) * zero);
+				return value;
+		    },
+			fromPointCoordToPercentage: function(index){
+                return this.clampPercentage(this.fromCoordToPercentage(this.points[index].y));
+			},
+			clampPercentage: function(percentage){
+                if(percentage < 0){
+					percentage = 0;
+				}
+				if(percentage > 100){
+					percentage = 100;
+				}
+				return percentage;
+			},
+			snapValueToGrid(value){
+                
+			},
+			snapPercentageToGrid(percentage){
+                let value = this.fromPercentageToCoord(percentage);
+				return this.snapValueToGrid(value);
+			},
+			snapPointToGrid(index){
+                this.points[index].y = this.snapPointToGrid(this.points[index].y);
+			},
+
 			calculatePointPosition: function(){
 				for (let i = 0; i < this.points.length; i++) {
 					let point = document.getElementById("point_"+i);
@@ -107,13 +168,17 @@ TODO:
 				this.currentPointElement = document.getElementById("point_"+index);
 
 				document.addEventListener("mousemove", function(e){
-					if(this.currentPointElement != null){			
-						let mouseY = e.clientY - this.container.offsetTop;
+					if(this.currentPointElement != null){		
+						//var xScrollPos = document.documentElement.scrollLeft;
+			            let yScrollPos = document.documentElement.scrollTop;
+
+
+						let mouseY = yScrollPos + e.clientY - this.container.offsetTop;
 
 						if(mouseY < 0 || mouseY > this.container.offsetHeight){
 							return;
 						}
-
+						
 						mouseY -= this.mouseSize;
 
 						this.points[this.currentSelectedPointIndex].y = mouseY;
@@ -144,6 +209,8 @@ TODO:
 				document.removeEventListener("mousemove", null);
 				this.currentSelectedPointIndex = -1;
 			},
+		},
+		watch:{
 		}
 	});
 </script>
