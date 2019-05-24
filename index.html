@@ -1,3 +1,14 @@
+<!--
+TODO:
+
+* Dynamic month selection for developement purposes
+* Year separation with stroked lines every 12 points
+* Preset function (linear pos/neg, exp, ln, sqr)
+
+-->
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,12 +18,21 @@
  	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
  	<link rel="stylesheet" href="index.css">
 </head>
+
 <body>
-	<div id="appContainer" v-on:mouseup="deselectPoint">
-		<div v-for="(point, index) in points" v-on:mousedown="selectPoint(index)"
-			 v-bind:id="'point_' + index" v-bind:class="{ 'selected': currentSelectedPointIndex === index }" class="pointInContainer">
-			<span class="fa fa-info-circle"></span>
+	<div id="appContainer">
+		<div id="graphContainer">
+			<div v-for="(point, index) in points" v-on:mousedown="selectPoint(index)"
+			 	 v-bind:id="'point_' + index" v-bind:class="{ 'selected': currentSelectedPointIndex === index }" class="pointInContainer">
+				<span v-bind:style="{ fontSize: pointSize + 'px' }" class="fa fa-circle"></span>
+			</div>
+			<svg style="width: 100%;height:100%;">
+				<line v-for="(line, index) in lines" stroke="black"
+				  	v-bind:x1="line.x1" v-bind:y1="line.y1" v-bind:x2="line.x2" v-bind:y2="line.y2"/>  <!--class="graph-line"-->
+			</svg>
 		</div>
+		<p>x: {{this.mouseX}} ; y: {{this.mouseY}}</p>
+		<p>{{currentSelectedPointIndex}}</p>
 	</div>
 </body>
 </html>
@@ -21,24 +41,58 @@
 	var mainVue = new Vue({
 		el: "#appContainer",
 		data: {
-			points:[
-				{x: 5, y: 300},
-				{x: 105, y: 300},
-				{x: 205, y: 300},
-				{x: 305, y: 300},
-				{x: 405, y: 300},
-				{x: 505, y: 300},
-				{x: 605, y: 300},
-				{x: 705, y: 300}
-			],
+			container: null,
+
+			points:[],
 			currentSelectedPointIndex: -1,
-			pointSize: 10,
-			currentPointElement: null
+			pointSize: 8,
+			currentPointElement: null,
+
+			lines: [],
+
+			months:12,
+
+			mouseX: 0,
+			mouseY: 0,
+
+			naturalTopMargin: 20
 		},
 		mounted: function(){
-			this.calculatePointPosition();
+			this.generatePoints();
+			Vue.nextTick(function(){
+				this.calculatePointPosition();
+				this.generateLines();
+			}.bind(this))
+
+			document.addEventListener("mouseup", function(){
+				mainVue.deselectPoint();
+			})
 		},
 		methods:{
+			generatePoints: function(){
+				this.container = document.getElementById("graphContainer");
+
+				let reminderGap = this.container.offsetWidth % this.months;
+				let pointsGap = (this.container.offsetWidth - reminderGap) / this.months;
+
+				let freeSpace = pointsGap / this.months;
+
+				for (let i = 0; i < this.months+1; i++) {
+					let point = { x: i*pointsGap - this.pointSize/2, y: 50}
+					this.points.push(point);
+				}
+			},
+			generateLines: function(){
+				for (let i = 0; i < this.points.length-1; i++) {
+					let line = {
+						x1: this.points[i].x + this.pointSize/2,
+						y1: this.points[i].y - this.pointSize,
+						x2: this.points[i+1].x + this.pointSize/2,
+						y2: this.points[i+1].y - this.pointSize
+					}
+					this.lines.push(line);
+				}
+			},
 			calculatePointPosition: function(){
 				for (let i = 0; i < this.points.length; i++) {
 					let point = document.getElementById("point_"+i);
@@ -56,12 +110,38 @@
 				this.currentSelectedPointIndex = index;
 
 				this.currentPointElement = document.getElementById("point_"+index);
+
 				document.addEventListener("mousemove", function(e){
-					//let x = e.clientX;
-					let y = e.clientY;
-					if(this.currentPointElement != null){
-						this.points[this.currentSelectedPointIndex].y = y;
-						this.currentPointElement.style.top = (y -15) + "px";	
+					if(this.currentPointElement != null){			
+						let mouseY = e.clientY - this.container.offsetTop;
+
+						this.mouseX = e.clientX - this.container.offsetLeft;
+						this.mouseY = mouseY;
+
+						if(mouseY < (this.pointSize/2) + this.naturalTopMargin || mouseY > this.container.offsetHeight){
+							return;
+						}
+
+						mouseY -= 10;
+
+						this.points[this.currentSelectedPointIndex].y = mouseY;
+						this.currentPointElement.style.top = mouseY + "px";
+
+						mouseY -= this.pointSize;
+
+						if(this.currentSelectedPointIndex === this.points.length-1)
+						{
+							this.lines[this.currentSelectedPointIndex-1].y2 = mouseY;
+						} 
+						else if(this.currentSelectedPointIndex === 0)
+						{
+							this.lines[this.currentSelectedPointIndex].y1 = mouseY;
+						} 
+						else
+						{
+							this.lines[this.currentSelectedPointIndex-1].y2 = mouseY;
+							this.lines[this.currentSelectedPointIndex].y1 = mouseY;
+						}
 					}
 				}.bind(this))
 
@@ -73,5 +153,5 @@
 				this.currentSelectedPointIndex = -1;
 			},
 		}
-	})
+	});
 </script>

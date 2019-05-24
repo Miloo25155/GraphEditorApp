@@ -1,11 +1,26 @@
 #appContainer{
+	background-color:white;
+
+	margin:auto;
+
+	width:1000px;
+	height:650px;
+
+	margin-top:150px;
+}
+
+#graphContainer{
 	position:relative;
 
 	background-color:#eee;
 
-	width:100%;
-	height:500px;
 	margin:auto;
+
+	width:90%;
+	height:90%;
+
+	border-left: 1px solid black;
+	border-bottom: 1px solid black;
 }
 
 .pointInContainer{
@@ -18,4 +33,9 @@
 
 .pointInContainer.selected span{
 	color:orange;
+}
+
+.graph-line{
+	stroke:blue;
+	stroke-width:5;
 }
