@@ -27,12 +27,10 @@ TODO:
 				<span v-bind:style="{ fontSize: pointSize + 'px' }" class="fa fa-circle"></span>
 			</div>
 			<svg style="width: 100%;height:100%;">
-				<line v-for="(line, index) in lines" stroke="black"
-				  	v-bind:x1="line.x1" v-bind:y1="line.y1" v-bind:x2="line.x2" v-bind:y2="line.y2"/>  <!--class="graph-line"-->
+				<line v-for="(line, index) in lines" stroke="#00C4FF"
+				  	v-bind:x1="line.x1" v-bind:y1="line.y1" v-bind:x2="line.x2" v-bind:y2="line.y2"/>
 			</svg>
 		</div>
-		<p>x: {{this.mouseX}} ; y: {{this.mouseY}}</p>
-		<p>{{currentSelectedPointIndex}}</p>
 	</div>
 </body>
 </html>
@@ -45,17 +43,14 @@ TODO:
 
 			points:[],
 			currentSelectedPointIndex: -1,
-			pointSize: 8,
+			pointSize: 12,
 			currentPointElement: null,
 
 			lines: [],
 
 			months:12,
 
-			mouseX: 0,
-			mouseY: 0,
-
-			naturalTopMargin: 20
+			mouseSize: 10
 		},
 		mounted: function(){
 			this.generatePoints();
@@ -78,7 +73,7 @@ TODO:
 				let freeSpace = pointsGap / this.months;
 
 				for (let i = 0; i < this.months+1; i++) {
-					let point = { x: i*pointsGap - this.pointSize/2, y: 50}
+					let point = { x: i*pointsGap - this.pointSize/2, y: this.container.offsetHeight - this.pointSize}
 					this.points.push(point);
 				}
 			},
@@ -86,9 +81,9 @@ TODO:
 				for (let i = 0; i < this.points.length-1; i++) {
 					let line = {
 						x1: this.points[i].x + this.pointSize/2,
-						y1: this.points[i].y - this.pointSize,
+						y1: this.points[i].y + this.pointSize,
 						x2: this.points[i+1].x + this.pointSize/2,
-						y2: this.points[i+1].y - this.pointSize
+						y2: this.points[i+1].y + this.pointSize
 					}
 					this.lines.push(line);
 				}
@@ -115,19 +110,16 @@ TODO:
 					if(this.currentPointElement != null){			
 						let mouseY = e.clientY - this.container.offsetTop;
 
-						this.mouseX = e.clientX - this.container.offsetLeft;
-						this.mouseY = mouseY;
-
-						if(mouseY < (this.pointSize/2) + this.naturalTopMargin || mouseY > this.container.offsetHeight){
+						if(mouseY < 0 || mouseY > this.container.offsetHeight){
 							return;
 						}
 
-						mouseY -= 10;
+						mouseY -= this.mouseSize;
 
 						this.points[this.currentSelectedPointIndex].y = mouseY;
 						this.currentPointElement.style.top = mouseY + "px";
 
-						mouseY -= this.pointSize;
+						mouseY += this.pointSize;
 
 						if(this.currentSelectedPointIndex === this.points.length-1)
 						{

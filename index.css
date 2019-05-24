@@ -12,30 +12,34 @@
 #graphContainer{
 	position:relative;
 
-	background-color:#eee;
+	background-color:white;
 
 	margin:auto;
 
 	width:90%;
 	height:90%;
 
-	border-left: 1px solid black;
-	border-bottom: 1px solid black;
+	border-left: 2px solid #777777;
+	border-bottom: 2px solid #777777;
+
+	box-shadow: 0px 0px 7px 5px #F3F3F3;
 }
 
 .pointInContainer{
 	width:0px;
 	height:0px;
-	display:inline-block;
 	position:relative;
 	transition: left 1s;
+	color:#3AA2CE;
+}
+
+.pointInContainer:hover{
+	cursor:pointer;
+	transform: scale(1.02);
+	transition: 0.3s transform;
+	color:#6CD4FF;
 }
 
 .pointInContainer.selected span{
 	color:orange;
-}
-
-.graph-line{
-	stroke:blue;
-	stroke-width:5;
 }
