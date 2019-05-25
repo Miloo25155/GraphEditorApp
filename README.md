@@ -9,6 +9,7 @@ The graph will be used to set the evolution of a budget over time
 In order to improve user experience, dotted lines are used to separate the years (if > 12 months)
 The Y axis has a specific precision and the values "snap" to this precision.
 
+-------------------------------------------
 
 Ideas for the future:
   * Proposing predefined curves that the user can select (linear pos/neg, exp, sqr...)
