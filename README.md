@@ -11,6 +11,6 @@ The Y axis has a specific precision and the values "snap" to this precision.
 
 
 Ideas for the future:
-  --> Proposing predefined curves that the user can select (linear pos/neg, exp, sqr...)
-  --> Possibility to display the percentage of the selected month to set it directly with the keyboard
-  --> Zoom to a specific year
+  * Proposing predefined curves that the user can select (linear pos/neg, exp, sqr...)
+  * Possibility to display the percentage of the selected month to set it directly with the keyboard
+  * Zoom to a specific year
