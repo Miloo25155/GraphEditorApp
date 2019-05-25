@@ -1,7 +1,6 @@
 <!--
 TODO:
 
-* Year separation with stroked lines every 12 points
 * Preset function (linear pos/neg, exp, ln, sqr)
 
 -->
@@ -31,6 +30,8 @@ TODO:
 				<line v-for="(year, index) in yearLines" stroke="grey" stroke-dasharray="10,10" stroke-width="1"
 				      v-bind:x1="year.x1" v-bind:y1="year.y1" v-bind:x2="year.x2" v-bind:y2="year.y2"/>
 			</svg>
+			<p>{{points[0]}}</p>
+			<p>{{percentagePoints[0]}}</p>
 		</div>
 	</div>
 </body>
@@ -49,13 +50,16 @@ TODO:
 
 			lines: [],
 
+			percentagePoints:[],
+
 			months:36,
 			yearMonths:12,
 			yearLines:[],
 
 			mouseSize: 10,
 
-			gridPrecision: 0.01
+			//0 means toFixed(0) so int precision, 0.01 means toFixed(1) so decimal precision
+			gridPrecision: 0
 		},
 		mounted: function(){
 			this.init();
@@ -85,6 +89,8 @@ TODO:
 					let point = { x: i*pointsGap - this.pointSize/2, y: this.container.offsetHeight - this.pointSize}
 					this.points.push(point);
 
+					let percentagePoint = { month: i, value: this.fromCoordToPercentage(point.y)};
+					this.percentagePoints.push(percentagePoint);
 				}
 			},
 			generateLines: function(){
@@ -118,7 +124,7 @@ TODO:
 
 				let percentage = ((zero - value) / zero) * 100
                   
-                return percentage;
+                return this.clampPercentage(percentage);
             },
 			fromPercentageToCoord: function(percentage){
                 let zero = this.container.offsetHeight - this.pointSize;
@@ -138,15 +144,28 @@ TODO:
 				}
 				return percentage;
 			},
-			snapValueToGrid(value){
-                
+
+			convertNewValueToPercentage: function(){
+				let percentage = this.fromPercentageToCoord(this.points[this.currentSelectedPointIndex].y);
+				this.percentagePoints[this.currentSelectedPointIndex].value = percentage;
 			},
-			snapPercentageToGrid(percentage){
-                let value = this.fromPercentageToCoord(percentage);
-				return this.snapValueToGrid(value);
+
+			snapToGrid(value){
+				return value.toFixed(this.gridPrecision*100);
 			},
 			snapPointToGrid(index){
-                this.points[index].y = this.snapPointToGrid(this.points[index].y);
+				this.percentagePoints[index].value = this.snapToGrid(this.percentagePoints[index].value);
+                
+				let snapedValue = this.snapCoordToGrid(this.points[index].y);
+                this.points[index].y = snapedValue;
+
+                return snapedValue;
+			},
+			snapCoordToGrid: function(value){
+				let percentage = this.fromCoordToPercentage(value);
+				percentage = this.snapToGrid(percentage);
+
+				return this.fromPercentageToCoord(percentage);
 			},
 
 			calculatePointPosition: function(){
@@ -183,21 +202,27 @@ TODO:
 
 						this.points[this.currentSelectedPointIndex].y = mouseY;
 						this.currentPointElement.style.top = mouseY + "px";
+						
+						//this.convertNewValueToPercentage();
+						let percentage = this.fromCoordToPercentage(this.points[this.currentSelectedPointIndex].y);
+						this.percentagePoints[this.currentSelectedPointIndex].value = percentage;
 
-						mouseY += this.pointSize;
+						let snapedValue = this.snapPointToGrid(this.currentSelectedPointIndex);
 
+						snapedValue += this.pointSize;
+						//this.moveLines();
 						if(this.currentSelectedPointIndex === this.points.length-1)
 						{
-							this.lines[this.currentSelectedPointIndex-1].y2 = mouseY;
+							this.lines[this.currentSelectedPointIndex-1].y2 = snapedValue;
 						} 
 						else if(this.currentSelectedPointIndex === 0)
 						{
-							this.lines[this.currentSelectedPointIndex].y1 = mouseY;
+							this.lines[this.currentSelectedPointIndex].y1 = snapedValue;
 						} 
 						else
 						{
-							this.lines[this.currentSelectedPointIndex-1].y2 = mouseY;
-							this.lines[this.currentSelectedPointIndex].y1 = mouseY;
+							this.lines[this.currentSelectedPointIndex-1].y2 = snapedValue;
+							this.lines[this.currentSelectedPointIndex].y1 = snapedValue;
 						}
 					}
 				}.bind(this))
@@ -208,9 +233,7 @@ TODO:
 				this.currentPointElement = null;
 				document.removeEventListener("mousemove", null);
 				this.currentSelectedPointIndex = -1;
-			},
-		},
-		watch:{
+			}
 		}
 	});
 </script>
